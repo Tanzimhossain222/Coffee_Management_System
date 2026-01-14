@@ -141,6 +141,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
                     )
                 }
                 success = await orderService.assignDeliveryAgent(id, deliveryAgentId)
+                if (!success) {
+                    return NextResponse.json(
+                        { success: false, message: "Failed to assign delivery agent. Please verify the agent ID exists." },
+                        { status: 400 }
+                    )
+                }
                 break
 
             default:

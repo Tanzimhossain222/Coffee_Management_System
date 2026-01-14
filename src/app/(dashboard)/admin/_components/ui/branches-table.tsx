@@ -20,15 +20,16 @@ import {
 } from "@/components/ui/table"
 import type { Branch } from "@/types"
 import { format } from "date-fns"
-import { Clock, Mail, MoreHorizontal, Pencil, Phone, Trash2 } from "lucide-react"
+import { Clock, Mail, MoreHorizontal, Pencil, Phone, Trash2, Users } from "lucide-react"
 
 interface BranchesTableProps {
     branches: Branch[]
     onEdit: (branch: Branch) => void
     onDelete: (branch: Branch) => void
+    onAssignManager: (branch: Branch) => void
 }
 
-export function BranchesTable({ branches, onEdit, onDelete }: BranchesTableProps) {
+export function BranchesTable({ branches, onEdit, onDelete, onAssignManager }: BranchesTableProps) {
     if (branches.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-[300px] text-center border rounded-lg">
@@ -108,6 +109,10 @@ export function BranchesTable({ branches, onEdit, onDelete }: BranchesTableProps
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => onAssignManager(branch)}>
+                                            <Users className="mr-2 h-4 w-4" />
+                                            Assign Manager
+                                        </DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => onEdit(branch)}>
                                             <Pencil className="mr-2 h-4 w-4" />
                                             Edit

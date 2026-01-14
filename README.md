@@ -1,7 +1,7 @@
 # ☕ Coffee Management System
 
 A comprehensive full-stack coffee shop management system built with Next.js 16, TypeScript, PostgreSQL, and Drizzle ORM. Features role-based access control for Admin, Manager, Staff, Delivery agents, and Customers.
-
+ 
 ## � Documentation
 
 - **[Database Schema & ERD](docs/DATABASE_SCHEMA.md)** - Complete database structure, relationships, and relational algebra

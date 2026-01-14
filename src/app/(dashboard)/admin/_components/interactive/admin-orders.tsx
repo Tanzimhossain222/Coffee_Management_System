@@ -30,9 +30,10 @@ interface Order {
 
 interface DeliveryAgent {
   id: string
+  authUserId: string
   name: string
   email: string
-  phone: string | null
+  phoneNo: string | null
 }
 
 export function AdminOrders() {
@@ -233,8 +234,8 @@ export function AdminOrders() {
                   </SelectTrigger>
                   <SelectContent>
                     {deliveryAgents.map((agent) => (
-                      <SelectItem key={agent.id} value={agent.id}>
-                        {agent.name} {agent.phone ? `(${agent.phone})` : ""}
+                      <SelectItem key={agent.id} value={agent.authUserId}>
+                        {agent.name} {agent.phoneNo ? `(${agent.phoneNo})` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>

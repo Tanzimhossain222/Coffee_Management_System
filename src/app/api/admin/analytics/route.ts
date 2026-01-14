@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
             },
             reviews: {
                 total: reviewStats[0]?.total || 0,
-                averageRating: reviewStats[0]?.averageRating || 0,
+                averageRating: parseFloat(String(reviewStats[0]?.averageRating || 0)),
             },
             branches: {
                 total: branchStats[0]?.total || 0,
