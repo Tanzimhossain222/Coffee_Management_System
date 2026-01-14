@@ -423,11 +423,22 @@ export const orderService = {
     /**
      * Assign delivery agent to order
      * TRANSACTION: Updates delivery and order status atomically
+     * Validates that the delivery agent exists before assignment
      */
     async assignDeliveryAgent(orderId: string, agentId: string): Promise<boolean> {
         try {
             await db.transaction(async (tx) => {
-                // 1. Update delivery record
+                // 1. Verify delivery agent exists
+                const agent = await tx
+                    .select({ id: authUsers.id })
+                    .from(authUsers)
+                    .where(eq(authUsers.id, agentId))
+
+                if (!agent || agent.length === 0) {
+                    throw new Error("Delivery agent not found")
+                }
+
+                // 2. Update delivery record
                 const [delivery] = await tx
                     .update(deliveries)
                     .set({
@@ -441,7 +452,7 @@ export const orderService = {
                     throw new Error("Delivery record not found")
                 }
 
-                // 2. Update order status to ASSIGNED
+                // 3. Update order status to ASSIGNED
                 await tx
                     .update(orders)
                     .set({

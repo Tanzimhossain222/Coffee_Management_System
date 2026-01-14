@@ -1,6 +1,10 @@
+import dotenv from 'dotenv'
+
 import { drizzle } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
 import * as schema from "./schema"
+
+dotenv.config();
 
 /**
  * Database Client Configuration
@@ -9,6 +13,8 @@ import * as schema from "./schema"
 
 // Support both DATABASE_URL and DB_URL for flexibility
 const connectionString = process.env.DATABASE_URL || process.env.DB_URL
+
+console.log("connectionString", connectionString)
 
 if (!connectionString) {
     throw new Error("DATABASE_URL or DB_URL environment variable is not set")

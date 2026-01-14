@@ -16,6 +16,7 @@ import type { Branch } from "@/types"
 import { Plus } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { AssignManagerDialog } from "../_components/ui/assign-manager-dialog"
 import { BranchFormDialog } from "../_components/ui/branch-form-dialog"
 import { BranchesTable } from "../_components/ui/branches-table"
 import { useBranches } from "../_hooks/use-branches"
@@ -24,6 +25,7 @@ export default function BranchesPage() {
     const { branches, isLoading, error, createBranch, updateBranch, deleteBranch } = useBranches()
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [isAssignManagerOpen, setIsAssignManagerOpen] = useState(false)
     const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -40,6 +42,30 @@ export default function BranchesPage() {
     const handleDelete = (branch: Branch) => {
         setSelectedBranch(branch)
         setIsDeleteOpen(true)
+    }
+
+    const handleAssignManager = (branch: Branch) => {
+        setSelectedBranch(branch)
+        setIsAssignManagerOpen(true)
+    }
+
+    const handleAssignManagerSubmit = async (managerId: string) => {
+        if (!selectedBranch) return
+
+        setIsSubmitting(true)
+        try {
+            const result = await updateBranch(selectedBranch.id, { managerId })
+            if (result) {
+                toast.success("Manager assigned successfully")
+                setIsAssignManagerOpen(false)
+            } else {
+                toast.error("Failed to assign manager")
+            }
+        } catch {
+            toast.error("An error occurred")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     const handleFormSubmit = async (data: Partial<Branch>) => {
@@ -132,6 +158,7 @@ export default function BranchesPage() {
                 branches={branches}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onAssignManager={handleAssignManager}
             />
 
             <BranchFormDialog
@@ -162,6 +189,14 @@ export default function BranchesPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+
+            <AssignManagerDialog
+                open={isAssignManagerOpen}
+                onOpenChange={setIsAssignManagerOpen}
+                branch={selectedBranch}
+                onAssign={handleAssignManagerSubmit}
+                isLoading={isSubmitting}
+            />
         </div>
     )
 }

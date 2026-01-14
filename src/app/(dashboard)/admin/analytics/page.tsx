@@ -179,7 +179,9 @@ export default function AdminAnalyticsPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {analytics.reviews.averageRating.toFixed(1)}
+                            {typeof analytics.reviews.averageRating === 'number' 
+                                ? analytics.reviews.averageRating.toFixed(1)
+                                : parseFloat(String(analytics.reviews.averageRating || 0)).toFixed(1)}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             From {analytics.reviews.total} reviews
