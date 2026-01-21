@@ -2,11 +2,19 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from "@/contexts/auth-context"
 import { useCart } from "@/contexts/cart-context"
 import type { UserRole } from "@/types"
-import { ClipboardList, Coffee, LogOut, Menu, Settings, ShoppingCart, Truck } from "lucide-react"
+import { ClipboardList, Coffee, LogOut, Menu, Settings, ShoppingCart, Truck, UserCircle2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -89,6 +97,60 @@ export function DashboardHeader() {
 
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground hidden sm:inline">{user?.name}</span>
+
+          {/* ✅ Customer Profile Dropdown (FIXED NAVIGATION) */}
+          {user?.role === "CUSTOMER" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Customer profile">
+                  <UserCircle2 className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="truncate">{user?.name || "My Account"}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault()
+                    router.push("/customer/profile")
+                  }}
+                >
+                  View profile
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault()
+                    router.push("/customer/profile?edit=1")
+                  }}
+                >
+                  Edit profile
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault()
+                    router.push("/customer/orders")
+                  }}
+                >
+                  Order history
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onSelect={(e) => e.preventDefault()}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden md:flex">
             <LogOut className="h-4 w-4 mr-2" />
             Logout
@@ -107,6 +169,7 @@ export function DashboardHeader() {
                   <p className="font-medium">{user?.name}</p>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
                 </div>
+
                 {navItems.map((item) => (
                   <Link key={item.href} href={item.href}>
                     <Button variant={pathname === item.href ? "secondary" : "ghost"} className="w-full justify-start">
@@ -116,6 +179,19 @@ export function DashboardHeader() {
                     </Button>
                   </Link>
                 ))}
+
+                {/* Optional: Profile link in mobile panel */}
+                {user?.role === "CUSTOMER" && (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => router.push("/customer/profile")}
+                  >
+                    <UserCircle2 className="h-4 w-4 mr-2" />
+                    My Profile
+                  </Button>
+                )}
+
                 <Button variant="ghost" onClick={handleLogout} className="justify-start text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
