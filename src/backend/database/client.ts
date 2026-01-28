@@ -1,63 +1,72 @@
-import dotenv from 'dotenv'
-
+import dns from 'dns'
+import 'dotenv/config'
 import { drizzle } from "drizzle-orm/node-postgres"
 import { Pool } from "pg"
 import * as schema from "./schema"
 
-dotenv.config();
+// Force IPv4 resolution to avoid IPv6 connectivity issues
+dns.setDefaultResultOrder('ipv4first')
 
 /**
  * Database Client Configuration
- * Singleton pattern for PostgreSQL connection pool
+ * Supports both local (Docker) and remote (Neon) databases
  */
 
-// Support both DATABASE_URL and DB_URL for flexibility
-const connectionString = process.env.DATABASE_URL || process.env.DB_URL
-
-console.log("connectionString", connectionString)
+// Support both DATABASE_URL and DB_URL
+const connectionString =
+  process.env.DATABASE_URL || process.env.DB_URL
 
 if (!connectionString) {
-    throw new Error("DATABASE_URL or DB_URL environment variable is not set")
+  throw new Error("DATABASE_URL or DB_URL environment variable is not set")
 }
 
-// Create PostgreSQL connection pool
-const pool = new Pool({
-    connectionString,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000, // 10 seconds for cloud databases
+// Determine if using local database (localhost)
+const isLocalDb = connectionString.includes('localhost') || connectionString.includes('127.0.0.1')
+
+// Create connection pool with appropriate SSL settings
+export const pool = new Pool({
+  connectionString,
+  ssl: isLocalDb ? false : {
+    rejectUnauthorized: false, // Required for Neon
+  },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: isLocalDb ? 5000 : 20000,
 })
 
-
+// Initialize Drizzle with node-postgres adapter
 export const db = drizzle(pool, { schema })
 
 /**
  * Test database connection
- * Call this on server startup to verify database connectivity
+ * Call once during server startup
  */
 export async function testConnection() {
-    try {
-        const client = await pool.connect()
-        await client.query("SELECT NOW()")
-        client.release()
-        console.log("✅ Database connection successful")
-        return true
-    } catch (error) {
-        console.error("❌ Database connection failed:", error)
-        throw error
-    }
+  const client = await pool.connect()
+  try {
+    const result = await client.query("SELECT 1 as health_check, NOW() as server_time, version() as pg_version")
+    console.log("✅ Database connection successful")
+    console.log("📊 Server time:", result.rows[0]?.server_time)
+    console.log("🗄️  Database:", isLocalDb ? "Local (Docker)" : "Remote (Neon)")
+    return true
+  } catch (error) {
+    console.error("❌ Database connection failed:", error)
+    throw error
+  } finally {
+    client.release()
+  }
 }
 
 /**
  * Gracefully close database connection pool
- * Call this on server shutdown
+ * Call on server shutdown
  */
 export async function closeConnection() {
-    try {
-        await pool.end()
-        console.log("✅ Database connection pool closed")
-    } catch (error) {
-        console.error("❌ Error closing database pool:", error)
-        throw error
-    }
+  try {
+    await pool.end()
+    console.log("✅ Database connection pool closed")
+  } catch (error) {
+    console.error("❌ Error closing database pool:", error)
+    throw error
+  }
 }

@@ -189,21 +189,23 @@ export default function AdminReviewsPage() {
             </div>
 
             {/* Filter */}
-            <div className="flex items-center gap-4">
-                <Select value={ratingFilter} onValueChange={setRatingFilter}>
-                    <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Filter by rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Ratings</SelectItem>
-                        <SelectItem value="5">5 Stars Only</SelectItem>
-                        <SelectItem value="4">4+ Stars</SelectItem>
-                        <SelectItem value="3">3+ Stars</SelectItem>
-                        <SelectItem value="1">Low Ratings (1-2)</SelectItem>
-                    </SelectContent>
-                </Select>
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+                <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-muted-foreground ml-1">Filter by Rating</span>
+                    <Select value={ratingFilter} onValueChange={setRatingFilter}>
+                        <SelectTrigger className="w-48">
+                            <SelectValue placeholder="All Ratings" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Ratings</SelectItem>
+                            <SelectItem value="5">5 Stars Only</SelectItem>
+                            <SelectItem value="4">4+ Stars</SelectItem>
+                            <SelectItem value="3">3+ Stars</SelectItem>
+                            <SelectItem value="1">Low Ratings (1-2)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
-
             {error && (
                 <div className="text-center py-8 text-destructive">{error}</div>
             )}

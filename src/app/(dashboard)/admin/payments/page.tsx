@@ -191,19 +191,22 @@ export default function AdminPaymentsPage() {
             </div>
 
             {/* Filter */}
-            <div className="flex items-center gap-4">
-                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as PaymentStatus)}>
-                    <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+                <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-muted-foreground ml-1">Filter by Status</span>
+                    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as PaymentStatus)}>
+                        <SelectTrigger className="w-48">
+                            <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="PENDING">Pending</SelectItem>
                         <SelectItem value="COMPLETED">Completed</SelectItem>
                         <SelectItem value="FAILED">Failed</SelectItem>
                         <SelectItem value="REFUNDED">Refunded</SelectItem>
                     </SelectContent>
                 </Select>
+                </div>
             </div>
 
             {error && (

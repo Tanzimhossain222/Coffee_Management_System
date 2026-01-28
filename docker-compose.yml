@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: coffee-db-postgres
+    environment:
+      POSTGRES_USER: coffee_user
+      POSTGRES_PASSWORD: coffee_dev_password
+      POSTGRES_DB: coffee_management
+    ports:
+      - "5433:5432"   # Host:5433 → Container:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coffee_user -d coffee_management"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: coffee-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@coffee.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:

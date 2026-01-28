@@ -344,7 +344,7 @@ async function seedSampleOrders(
         return
     }
 
-    const orderStatuses = ["CREATED", "ACCEPTED", "ASSIGNED", "PICKED_UP", "DELIVERED"] as const
+    // All new orders start as CREATED - require admin/manager approval
     const orderTypes = ["PICKUP", "DELIVERY"] as const
 
     let created = 0
@@ -352,7 +352,7 @@ async function seedSampleOrders(
         const customerId = customerIds[Math.floor(Math.random() * customerIds.length)]
         const branchId = branchIds[Math.floor(Math.random() * branchIds.length)]
         const orderType = orderTypes[Math.floor(Math.random() * orderTypes.length)]
-        const status = orderStatuses[Math.floor(Math.random() * orderStatuses.length)]
+        const status = "CREATED" // All orders require approval
 
         // Random 1-4 items per order
         const itemCount = Math.floor(Math.random() * 4) + 1

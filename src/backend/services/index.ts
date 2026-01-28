@@ -60,3 +60,6 @@ export { userService } from "./user.service"
 export type {
     CreateUserInput, UpdateUserInput, UserFilters, UserWithProfile
 } from "./user.service"
+
+// Support Service
+export { supportService } from "./support.service"

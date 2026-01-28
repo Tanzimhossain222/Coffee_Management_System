@@ -9,9 +9,9 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Coffee Hub - Developer Coffee Delivery",
+  title: "Coffee Hub - Professional Coffee Delivery",
   description:
-    "Quick and reliable coffee delivery for developers. Order your favorite coffee and get it delivered to your workspace.",
+    "Premium coffee delivery for professionals and businesses. Fuel your workspace with quick, reliable service tailored for modern teams.",
   generator: "v0.app",
   icons: {
     icon: [

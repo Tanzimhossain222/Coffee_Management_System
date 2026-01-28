@@ -205,16 +205,9 @@ export const paymentService = {
                 payment = created
             }
 
-            // Update order status if payment successful
-            if (isSuccess) {
-                await tx
-                    .update(orders)
-                    .set({
-                        status: "ACCEPTED",
-                        updatedAt: new Date()
-                    })
-                    .where(eq(orders.id, input.orderId))
-            }
+            // Payment successful - order stays in CREATED status
+            // Admin/Manager must manually accept the order
+            // (Removed auto-accept to maintain proper approval workflow)
 
             return { payment, isSuccess, transactionId }
         })

@@ -29,11 +29,11 @@ export default function HomePage() {
         <section className="container mx-auto px-4 py-20 md:py-32">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-balance">
-              Coffee Delivery for <span className="text-primary">Developers</span>
+              Premium Coffee for <span className="text-primary">Professionals</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Quick and reliable coffee delivery during your work hours. Order your favorite brew and get it delivered
-              right to your workspace.
+              Fuel your workspace with premium coffee delivery. Quick, reliable, and tailored for modern teams and
+              businesses.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Link href="/register">
@@ -98,7 +98,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border py-8">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Coffee Hub - Developer Coffee Delivery System</p>
+          <p>Coffee Hub - Professional Coffee Delivery System</p>
         </div>
       </footer>
     </div>

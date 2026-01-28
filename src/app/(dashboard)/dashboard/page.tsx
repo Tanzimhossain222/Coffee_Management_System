@@ -19,7 +19,7 @@ export default function DashboardPage() {
           CUSTOMER: "/customer",
           ADMIN: "/admin",
           MANAGER: "/admin",
-          STAFF: "/admin",
+          STAFF: "/staff",
           DELIVERY: "/delivery",
         }
         router.push(redirectMap[user.role])

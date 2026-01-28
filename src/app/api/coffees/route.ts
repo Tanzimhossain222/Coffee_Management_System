@@ -43,9 +43,11 @@ export async function GET(request: NextRequest) {
             available: searchParams.get("available") === "true" ? true :
                        searchParams.get("available") === "false" ? false : undefined,
             search: searchParams.get("search") || undefined,
+            page: parseInt(searchParams.get("page") || "1"),
+            limit: parseInt(searchParams.get("limit") || "12"),
         }
 
-        const coffees = await coffeeService.findAll(filters)
+        const { coffees, total } = await coffeeService.findAll(filters)
 
         // Optionally include categories
         const includeCategories = searchParams.get("categories") === "true"
@@ -57,6 +59,10 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             success: true,
             data: coffees,
+            total,
+            page: filters.page,
+            limit: filters.limit,
+            totalPages: Math.ceil(total / filters.limit),
             ...(categories && { categories }),
         })
     } catch (error) {

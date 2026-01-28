@@ -173,13 +173,15 @@ export default function AdminDeliveriesPage() {
             </div>
 
             {/* Filter */}
-            <div className="flex items-center gap-4">
-                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as DeliveryStatus)}>
-                    <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+                <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-muted-foreground ml-1">Filter by Status</span>
+                    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as DeliveryStatus)}>
+                        <SelectTrigger className="w-48">
+                            <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="PENDING">Pending</SelectItem>
                         <SelectItem value="PICKED_UP">Picked Up</SelectItem>
                         <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
@@ -187,6 +189,7 @@ export default function AdminDeliveriesPage() {
                         <SelectItem value="FAILED">Failed</SelectItem>
                     </SelectContent>
                 </Select>
+                </div>
             </div>
 
             {error && (
@@ -235,7 +238,7 @@ export default function AdminDeliveriesPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-start gap-2 max-w-xs">
-                                            <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                                            <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                                             <span className="text-sm truncate">
                                                 {delivery.deliveryAddress || "No address"}
                                             </span>

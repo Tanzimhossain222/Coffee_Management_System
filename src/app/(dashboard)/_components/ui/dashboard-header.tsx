@@ -3,18 +3,18 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from "@/contexts/auth-context"
 import { useCart } from "@/contexts/cart-context"
 import type { UserRole } from "@/types"
-import { ClipboardList, Coffee, LogOut, Menu, Settings, ShoppingCart, Truck, UserCircle2 } from "lucide-react"
+import { ClipboardList, Coffee, LogOut, Menu, MessageSquare, Settings, ShoppingCart, Truck, UserCircle2 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -38,6 +38,7 @@ export function DashboardHeader() {
           { href: "/customer", label: "Menu", icon: Coffee },
           { href: "/customer/cart", label: "Cart", icon: ShoppingCart, badge: totalItems },
           { href: "/customer/orders", label: "My Orders", icon: ClipboardList },
+          { href: "/customer/support", label: "Support", icon: MessageSquare },
         ]
       case "ADMIN":
         return [
@@ -46,6 +47,8 @@ export function DashboardHeader() {
         ]
       case "DELIVERY":
         return [{ href: "/delivery", label: "Deliveries", icon: Truck }]
+      case "STAFF":
+        return [{ href: "/staff", label: "Branch Operations", icon: Coffee }]
       default:
         return []
     }
@@ -96,67 +99,59 @@ export function DashboardHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground hidden sm:inline">{user?.name}</span>
-
-          {/* ✅ Customer Profile Dropdown (FIXED NAVIGATION) */}
-          {user?.role === "CUSTOMER" && (
-            <DropdownMenu>
+          {/* Unified Profile & Logout Dropdown for all roles */}
+          <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Customer profile">
+                <Button variant="ghost" size="sm" className="hidden sm:flex items-center gap-2 pl-2">
                   <UserCircle2 className="h-5 w-5" />
+                  <span className="max-w-25 truncate">{user?.name}</span>
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel className="truncate">{user?.name || "My Account"}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="pb-0">
+                  <p className="font-medium truncate">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground font-normal truncate">{user?.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="my-2" />
+
+                {user?.role === "CUSTOMER" && (
+                  <>
+                    <DropdownMenuItem onSelect={() => router.push("/customer/profile")}>
+                      View profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => router.push("/customer/orders")}>
+                      Order history
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+
+                {(user?.role === "ADMIN" || user?.role === "MANAGER") && (
+                  <>
+                    <DropdownMenuItem onSelect={() => router.push("/admin/settings")}>
+                      Admin settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
 
                 <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault()
-                    router.push("/customer/profile")
-                  }}
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+                  onSelect={handleLogout}
                 >
-                  View profile
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault()
-                    router.push("/customer/profile?edit=1")
-                  }}
-                >
-                  Edit profile
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onSelect={(e) => {
-                    e.preventDefault()
-                    router.push("/customer/orders")
-                  }}
-                >
-                  Order history
-                </DropdownMenuItem>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  className="text-destructive focus:text-destructive"
-                  onSelect={(e) => e.preventDefault()}
-                  onClick={handleLogout}
-                >
+                  <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          </DropdownMenu>
 
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="hidden md:flex">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
+          {/* Simple Logout button for larger screens as fallback/alternative */}
+          <Button variant="ghost" size="icon" onClick={handleLogout} className="md:hidden">
+            <LogOut className="h-5 w-5" />
           </Button>
 
-          {/* Mobile Navigation */}
+          {/* Mobile Navigation Sidebar */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">

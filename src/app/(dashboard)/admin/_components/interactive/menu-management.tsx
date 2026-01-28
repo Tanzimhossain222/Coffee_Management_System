@@ -7,11 +7,20 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Spinner } from "@/components/ui/spinner"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { Coffee as CoffeeIcon, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react"
+import { useDebounce } from "@/hooks/use-debounce"
+import { Coffee as CoffeeIcon, Pencil, Plus, RefreshCw, Search, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { useCallback, useEffect, useState } from "react"
 
@@ -41,11 +50,26 @@ export function MenuManagement() {
   const [editingCoffee, setEditingCoffee] = useState<Coffee | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
+  // Search & Pagination state
+  const [search, setSearch] = useState("")
+  const debouncedSearch = useDebounce(search, 500)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const limit = 10
+
   const fetchCoffees = useCallback(async () => {
     try {
       setIsLoading(true)
       setError(null)
-      const response = await fetch("/api/coffees")
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      })
+      if (debouncedSearch) params.append("search", debouncedSearch)
+
+      const response = await fetch(`/api/coffees?${params.toString()}`)
       const result = await response.json()
 
       if (result.success) {
@@ -68,6 +92,8 @@ export function MenuManagement() {
           available: c.available,
           image: c.imageUrl,
         })))
+        setTotalPages(result.totalPages || 1)
+        setTotalItems(result.total || 0)
       } else {
         setError(result.message || "Failed to fetch coffees")
       }
@@ -77,7 +103,7 @@ export function MenuManagement() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [debouncedSearch, page])
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -95,6 +121,11 @@ export function MenuManagement() {
     fetchCoffees()
     fetchCategories()
   }, [fetchCoffees, fetchCategories])
+
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
 
   const handleToggleAvailability = async (id: string, available: boolean) => {
     try {
@@ -216,11 +247,22 @@ export function MenuManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button onClick={fetchCoffees} variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
+      <div className="flex flex-col md:flex-row items-end justify-between gap-4">
+        <div className="flex items-end gap-4 w-full md:w-auto">
+          <div className="flex flex-col gap-1.5 w-full md:w-80">
+            <span className="text-xs font-medium text-muted-foreground ml-1">Search Coffee</span>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Find coffee by name..."
+                className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <Button onClick={fetchCoffees} variant="outline" size="icon" className="h-10 w-10 shrink-0">
+            <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -248,62 +290,119 @@ export function MenuManagement() {
       {coffees.length === 0 ? (
         <div className="text-center py-12">
           <CoffeeIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No coffee items yet. Add your first one!</p>
+          {search ? (
+            <>
+              <p className="text-muted-foreground mb-2">No results found for &quot;{search}&quot;</p>
+              <Button variant="link" onClick={() => setSearch("")}>Clear search</Button>
+            </>
+          ) : (
+            <p className="text-muted-foreground">No coffee items yet. Add your first one!</p>
+          )}
         </div>
       ) : (
-        <div className="grid gap-4">
-          {coffees.map((coffee) => (
-            <Card key={coffee.id}>
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                  <Image src={coffee.image || "/placeholder.svg"} alt={coffee.name} fill className="object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium">{coffee.name}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{coffee.description}</p>
-                  <div className="flex gap-2 text-sm">
-                    <span className="font-medium">${coffee.price.toFixed(2)}</span>
-                    {coffee.categoryName && (
-                      <span className="text-muted-foreground">• {coffee.categoryName}</span>
-                    )}
+        <>
+          <div className="grid gap-4">
+            {coffees.map((coffee) => (
+              <Card key={coffee.id}>
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-muted shrink-0">
+                    <Image src={coffee.image || "/placeholder.svg"} alt={coffee.name} fill className="object-cover" />
                   </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={coffee.available}
-                      onCheckedChange={(checked) => handleToggleAvailability(coffee.id, checked)}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium">{coffee.name}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{coffee.description}</p>
+                    <div className="flex gap-2 text-sm">
+                      <span className="font-medium">${coffee.price.toFixed(2)}</span>
+                      {coffee.categoryName && (
+                        <span className="text-muted-foreground">• {coffee.categoryName}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={coffee.available}
+                        onCheckedChange={(checked) => handleToggleAvailability(coffee.id, checked)}
+                        disabled={actionLoading === coffee.id}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {coffee.available ? "Available" : "Unavailable"}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => openEdit(coffee)}
                       disabled={actionLoading === coffee.id}
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      {coffee.available ? "Available" : "Unavailable"}
-                    </span>
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDelete(coffee.id)}
+                      disabled={actionLoading === coffee.id}
+                    >
+                      {actionLoading === coffee.id ? (
+                        <Spinner className="h-4 w-4" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => openEdit(coffee)}
-                    disabled={actionLoading === coffee.id}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDelete(coffee.id)}
-                    disabled={actionLoading === coffee.id}
-                  >
-                    {actionLoading === coffee.id ? (
-                      <Spinner className="h-4 w-4" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pt-4 flex flex-col items-center gap-4">
+              <p className="text-sm text-muted-foreground">
+                Showing {coffees.length} of {totalItems} items
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (page > 1) setPage(page - 1)
+                      }}
+                      className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <PaginationItem key={i + 1}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === i + 1}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          setPage(i + 1)
+                        }}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (page < totalPages) setPage(page + 1)
+                      }}
+                      className={page === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

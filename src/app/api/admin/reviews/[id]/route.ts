@@ -3,30 +3,11 @@
  * DELETE /api/admin/reviews/[id] - Delete a review
  */
 
-import { authService, reviewService } from "@/backend/services"
-import { cookies } from "next/headers"
+import { getCurrentUser } from '@/app/api/_lib'
+import { reviewService } from "@/backend/services"
 import { NextRequest, NextResponse } from "next/server"
 
-// Helper to get current user
-async function getCurrentUser(request: NextRequest) {
-    const cookieStore = await cookies()
-    let token = cookieStore.get("auth_token")?.value
 
-    if (!token) {
-        const authHeader = request.headers.get("authorization")
-        if (authHeader?.startsWith("Bearer ")) {
-            token = authHeader.substring(7)
-        }
-    }
-
-    if (!token) return null
-
-    try {
-        return await authService.getUserFromToken(token)
-    } catch {
-        return null
-    }
-}
 
 interface RouteParams {
     params: Promise<{ id: string }>

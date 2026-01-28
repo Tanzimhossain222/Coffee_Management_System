@@ -5,31 +5,13 @@
  * DELETE /api/admin/users/[id] - Delete user
  */
 
+import { getCurrentUser } from '@/app/api/_lib'
 import { authService, userService } from "@/backend/services"
 import type { UpdateUserInput, UserRole, UserStatus } from "@/backend/services/user.service"
 import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 
-// Helper to get current user
-async function getCurrentUser(request: NextRequest) {
-    const cookieStore = await cookies()
-    let token = cookieStore.get("auth_token")?.value
 
-    if (!token) {
-        const authHeader = request.headers.get("authorization")
-        if (authHeader?.startsWith("Bearer ")) {
-            token = authHeader.substring(7)
-        }
-    }
-
-    if (!token) return null
-
-    try {
-        return await authService.getUserFromToken(token)
-    } catch {
-        return null
-    }
-}
 
 interface RouteParams {
     params: Promise<{ id: string }>

@@ -20,6 +20,8 @@ export interface CoffeeFilters {
     categoryId?: string
     available?: boolean
     search?: string
+    page?: number
+    limit?: number
 }
 
 export interface CreateCoffeeInput {
@@ -48,7 +50,7 @@ export const coffeeService = {
     /**
      * Get all coffees with category name using LEFT JOIN
      */
-    async findAll(filters?: CoffeeFilters): Promise<CoffeeWithCategory[]> {
+    async findAll(filters?: CoffeeFilters): Promise<{ coffees: CoffeeWithCategory[], total: number }> {
         // Build WHERE conditions
         const conditions = []
 
@@ -64,7 +66,20 @@ export const coffeeService = {
             conditions.push(ilike(coffees.name, `%${filters.search}%`))
         }
 
-        // SQL-like query with LEFT JOIN
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined
+
+        // Get total count
+        const totalResult = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(coffees)
+            .where(whereClause)
+
+        const total = Number(totalResult[0]?.count || 0)
+
+        // SQL-like query with LEFT JOIN and pagination
+        const limit = filters?.limit || 12
+        const offset = ((filters?.page || 1) - 1) * limit
+
         const result = await db
             .select({
                 id: coffees.id,
@@ -80,10 +95,12 @@ export const coffeeService = {
             })
             .from(coffees)
             .leftJoin(coffeeCategories, eq(coffees.categoryId, coffeeCategories.id))
-            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .where(whereClause)
             .orderBy(coffees.name)
+            .limit(limit)
+            .offset(offset)
 
-        return result
+        return { coffees: result, total }
     },
 
     /**

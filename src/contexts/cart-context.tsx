@@ -35,12 +35,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (result.success) {
         // Map API response to CartItem format
-        const cartItems: CartItem[] = result.data.map((item: {
+        const cartItems: CartItem[] = result.data.items.map((item: {
           id: string
           coffeeId: string
           coffeeName: string
           coffeePrice: string
-          coffeeImage: string | null
+          coffeeImageUrl: string | null
           categoryName: string | null
           quantity: number
         }) => ({
@@ -49,7 +49,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             id: item.coffeeId,
             name: item.coffeeName,
             price: parseFloat(item.coffeePrice),
-            image: item.coffeeImage || "/placeholder.svg",
+            image: item.coffeeImageUrl || "/placeholder.svg",
             category: mapCategory(item.categoryName),
             description: "",
             available: true,

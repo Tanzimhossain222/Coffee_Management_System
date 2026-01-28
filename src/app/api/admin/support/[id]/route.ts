@@ -3,33 +3,12 @@
  * PATCH /api/admin/support/[id] - Update ticket status
  */
 
+import { getCurrentUser } from '@/app/api/_lib'
 import { db } from "@/backend/database/client"
 import { supportTickets } from "@/backend/database/schema"
-import { authService } from "@/backend/services"
 import { eq } from "drizzle-orm"
-import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 
-// Helper to get current user
-async function getCurrentUser(request: NextRequest) {
-    const cookieStore = await cookies()
-    let token = cookieStore.get("auth_token")?.value
-
-    if (!token) {
-        const authHeader = request.headers.get("authorization")
-        if (authHeader?.startsWith("Bearer ")) {
-            token = authHeader.substring(7)
-        }
-    }
-
-    if (!token) return null
-
-    try {
-        return await authService.getUserFromToken(token)
-    } catch {
-        return null
-    }
-}
 
 interface RouteParams {
     params: Promise<{ id: string }>
@@ -100,6 +79,53 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         console.error("Failed to update support ticket:", error)
         return NextResponse.json(
             { success: false, message: "Failed to update support ticket" },
+            { status: 500 }
+        )
+    }
+}
+/**
+ * DELETE /api/admin/support/[id]
+ * Delete support ticket
+ */
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+    try {
+        const user = await getCurrentUser(request)
+
+        if (!user) {
+            return NextResponse.json(
+                { success: false, message: "Not authenticated" },
+                { status: 401 }
+            )
+        }
+
+        if (user.role !== "ADMIN" && user.role !== "MANAGER") {
+            return NextResponse.json(
+                { success: false, message: "Access denied" },
+                { status: 403 }
+            )
+        }
+
+        const { id } = await params
+        const [deleted] = await db
+            .delete(supportTickets)
+            .where(eq(supportTickets.id, id))
+            .returning()
+
+        if (!deleted) {
+            return NextResponse.json(
+                { success: false, message: "Ticket not found" },
+                { status: 404 }
+            )
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: "Ticket deleted successfully",
+        })
+    } catch (error) {
+        console.error("Failed to delete support ticket:", error)
+        return NextResponse.json(
+            { success: false, message: "Internal server error" },
             { status: 500 }
         )
     }

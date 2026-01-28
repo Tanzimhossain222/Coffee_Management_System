@@ -94,15 +94,15 @@ export default function UsersPage() {
                     </div>
                     <Skeleton className="h-10 w-32" />
                 </div>
-                <Skeleton className="h-12 w-full max-w-md" />
-                <Skeleton className="h-[400px]" />
+                <Skeleton className="h-100 w-full max-w-md" />
+                <Skeleton className="h-100" />
             </div>
         )
     }
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center h-[400px] text-center">
+            <div className="flex flex-col items-center justify-center h-100 text-center">
                 <p className="text-destructive text-lg font-medium">Failed to load users</p>
                 <p className="text-muted-foreground">{error}</p>
             </div>
@@ -165,29 +165,35 @@ export default function UsersPage() {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search users..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9"
-                    />
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+                <div className="flex flex-col gap-1.5 flex-1 max-w-sm">
+                    <span className="text-xs font-medium text-muted-foreground ml-1">Search Users</span>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search by name or email"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
                 </div>
-                <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Roles</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
-                        <SelectItem value="MANAGER">Manager</SelectItem>
-                        <SelectItem value="STAFF">Staff</SelectItem>
-                        <SelectItem value="DELIVERY">Delivery</SelectItem>
-                        <SelectItem value="CUSTOMER">Customer</SelectItem>
-                    </SelectContent>
-                </Select>
+                <div className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-muted-foreground ml-1">Filter by Role</span>
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
+                        <SelectTrigger className="w-45">
+                            <SelectValue placeholder="All Roles" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Roles</SelectItem>
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                            <SelectItem value="MANAGER">Manager</SelectItem>
+                            <SelectItem value="STAFF">Staff</SelectItem>
+                            <SelectItem value="DELIVERY">Delivery</SelectItem>
+                            <SelectItem value="CUSTOMER">Customer</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             {/* Users Table */}

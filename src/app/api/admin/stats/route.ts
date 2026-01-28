@@ -5,31 +5,11 @@
 
 import { db } from "@/backend/database/client"
 import { authUsers, branches, coffees, orderItems, orders, userProfiles } from "@/backend/database/schema"
-import { authService } from "@/backend/services"
 import { and, desc, eq, gte, sql } from "drizzle-orm"
-import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
+import { getCurrentUser } from '../../_lib'
 
-// Helper to get current user
-async function getCurrentUser(request: NextRequest) {
-    const cookieStore = await cookies()
-    let token = cookieStore.get("auth_token")?.value
 
-    if (!token) {
-        const authHeader = request.headers.get("authorization")
-        if (authHeader?.startsWith("Bearer ")) {
-            token = authHeader.substring(7)
-        }
-    }
-
-    if (!token) return null
-
-    try {
-        return await authService.getUserFromToken(token)
-    } catch {
-        return null
-    }
-}
 
 export async function GET(request: NextRequest) {
     try {

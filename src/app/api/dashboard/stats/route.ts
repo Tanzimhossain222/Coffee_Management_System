@@ -5,31 +5,11 @@
 
 import { db } from "@/backend/database/client"
 import { authUsers, branches, coffees } from "@/backend/database/schema"
-import { authService, deliveryService, orderService } from "@/backend/services"
+import { deliveryService, orderService } from "@/backend/services"
 import { sql } from "drizzle-orm"
-import { cookies } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
+import { getCurrentUser } from '../../_lib'
 
-// Helper to get current user
-async function getCurrentUser(request: NextRequest) {
-    const cookieStore = await cookies()
-    let token = cookieStore.get("auth_token")?.value
-
-    if (!token) {
-        const authHeader = request.headers.get("authorization")
-        if (authHeader?.startsWith("Bearer ")) {
-            token = authHeader.substring(7)
-        }
-    }
-
-    if (!token) return null
-
-    try {
-        return await authService.getUserFromToken(token)
-    } catch {
-        return null
-    }
-}
 
 /**
  * GET /api/dashboard/stats
@@ -86,8 +66,8 @@ export async function GET(request: NextRequest) {
                 branches: branchCounts[0],
                 coffees: coffeeCounts[0],
             }
-        } else if (user.role === "MANAGER") {
-            // Manager sees branch-specific stats
+        } else if (user.role === "MANAGER" || user.role === "STAFF") {
+            // Manager and Staff see branch-specific stats
             const orderStats = await orderService.getStats(branchId)
 
             stats = {
