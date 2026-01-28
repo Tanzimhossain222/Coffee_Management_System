@@ -344,7 +344,8 @@ async function seedSampleOrders(
         return
     }
 
-    // All new orders start as CREATED - require admin/manager approval
+    // Seed with realistic data distributed across different statuses
+    const orderStatuses = ["CREATED", "ACCEPTED", "ASSIGNED", "PICKED_UP", "DELIVERED", "CANCELLED"] as const
     const orderTypes = ["PICKUP", "DELIVERY"] as const
 
     let created = 0
@@ -352,7 +353,9 @@ async function seedSampleOrders(
         const customerId = customerIds[Math.floor(Math.random() * customerIds.length)]
         const branchId = branchIds[Math.floor(Math.random() * branchIds.length)]
         const orderType = orderTypes[Math.floor(Math.random() * orderTypes.length)]
-        const status = "CREATED" // All orders require approval
+
+        // During seeding, we bypass the approval workflow to create a realistic dashboard
+        const status = orderStatuses[Math.floor(Math.random() * orderStatuses.length)]
 
         // Random 1-4 items per order
         const itemCount = Math.floor(Math.random() * 4) + 1

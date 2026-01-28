@@ -207,8 +207,17 @@ export function AdminOrders() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-base">Order #{order.id.slice(-6)}</CardTitle>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      Order #{order.id.slice(-6)}
+                      {order.status === "CREATED" && (
+                        <span className="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">Pending</span>
+                      )}
+                      {order.status === "ACCEPTED" && (
+                        <span className="ml-2 px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">Accepted</span>
+                      )}
+                    </CardTitle>
                     <p className="text-xs text-muted-foreground mt-1">{order.branchName}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Ordered: {new Date(order.createdAt).toLocaleString()}</p>
                   </div>
                   <OrderStatusBadge status={order.status as any} />
                 </div>

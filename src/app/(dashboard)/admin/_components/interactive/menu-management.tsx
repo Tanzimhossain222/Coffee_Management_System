@@ -177,6 +177,7 @@ export function MenuManagement() {
     price: number
     categoryId: string | null
     available: boolean
+    imageUrl: string | null
   }) => {
     try {
       setActionLoading("save")
@@ -417,6 +418,7 @@ interface CoffeeFormProps {
     price: number
     categoryId: string | null
     available: boolean
+    imageUrl: string | null
   }) => void
   onCancel: () => void
   isLoading: boolean
@@ -428,6 +430,7 @@ function CoffeeForm({ coffee, categories, onSave, onCancel, isLoading }: CoffeeF
   const [price, setPrice] = useState(coffee?.price.toString() || "")
   const [categoryId, setCategoryId] = useState(coffee?.categoryId || "")
   const [available, setAvailable] = useState(coffee?.available ?? true)
+  const [imageUrl, setImageUrl] = useState(coffee?.image || "")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -437,6 +440,7 @@ function CoffeeForm({ coffee, categories, onSave, onCancel, isLoading }: CoffeeF
       price: Number.parseFloat(price),
       categoryId: categoryId || null,
       available,
+      imageUrl: imageUrl || null
     })
   }
 
@@ -449,6 +453,10 @@ function CoffeeForm({ coffee, categories, onSave, onCancel, isLoading }: CoffeeF
       <div className="space-y-2">
         <Label htmlFor="description">Description</Label>
         <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="imageUrl">Image URL</Label>
+        <Input id="imageUrl" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">

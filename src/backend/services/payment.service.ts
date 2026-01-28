@@ -42,6 +42,7 @@ export interface ProcessPaymentInput {
     orderId: string
     customerId: string
     paymentMethod: PaymentMethodType
+    bypassApproval?: boolean
 }
 
 // ============================================
@@ -205,9 +206,17 @@ export const paymentService = {
                 payment = created
             }
 
-            // Payment successful - order stays in CREATED status
-            // Admin/Manager must manually accept the order
-            // (Removed auto-accept to maintain proper approval workflow)
+            // Payment successful - update order status if bypassApproval is true
+            // Otherwise, order stays in CREATED status for manual admin approval
+            if (isSuccess && input.bypassApproval) {
+                await tx
+                    .update(orders)
+                    .set({
+                        status: "ACCEPTED",
+                        updatedAt: new Date()
+                    })
+                    .where(eq(orders.id, input.orderId))
+            }
 
             return { payment, isSuccess, transactionId }
         })
