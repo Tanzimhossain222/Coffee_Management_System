@@ -43,9 +43,9 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        if (user.role !== "ADMIN" && user.role !== "MANAGER") {
+        if (user.role !== "ADMIN") {
             return NextResponse.json(
-                { success: false, message: "Access denied" },
+                { success: false, message: "Access denied - Payments management available for admins only" },
                 { status: 403 }
             )
         }

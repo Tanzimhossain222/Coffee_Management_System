@@ -40,9 +40,9 @@ export async function GET(request: NextRequest) {
             )
         }
 
-        if (user.role !== "ADMIN" && user.role !== "MANAGER") {
+        if (user.role !== "ADMIN") {
             return NextResponse.json(
-                { error: "Access denied" },
+                { error: "Access denied - Branches management available for admins only" },
                 { status: 403 }
             )
         }

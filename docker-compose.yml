@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: coffee_dev_password
       POSTGRES_DB: coffee_management
     ports:
-      - "5433:5432"   # Host:5433 → Container:5432
+      - "5433:5432"  
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
