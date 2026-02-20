@@ -63,6 +63,7 @@ const mainNavItems = [
         title: "Branches",
         href: "/admin/branches",
         icon: Building2,
+        adminOnly: true,
     },
     {
         title: "Menu",
@@ -86,24 +87,28 @@ const managementNavItems = [
         title: "Payments",
         href: "/admin/payments",
         icon: CreditCard,
+        adminOnly: true,
     },
 ]
 
-const analyticsNavItems = [
+const adminOnlyNavItems = [
     {
         title: "Analytics",
         href: "/admin/analytics",
         icon: BarChart3,
     },
-    {
-        title: "Reviews",
-        href: "/admin/reviews",
-        icon: Star,
-    },
+]
+
+const commonNavItems = [
     {
         title: "Support",
         href: "/admin/support",
         icon: Ticket,
+    },
+    {
+        title: "Reviews",
+        href: "/admin/reviews",
+        icon: Star,
     },
 ]
 
@@ -126,6 +131,7 @@ function SidebarNavItem({ item, isActive }: { item: typeof mainNavItems[0]; isAc
 
 function SidebarNav() {
     const pathname = usePathname()
+    const { user } = useAuth()
 
     return (
         <SidebarContent>
@@ -134,12 +140,14 @@ function SidebarNav() {
                     <SidebarGroupLabel>Main</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {mainNavItems.map((item) => (
-                                <SidebarNavItem
-                                    key={item.href}
-                                    item={item}
-                                    isActive={pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))}
-                                />
+                            {mainNavItems.map((item: any) => (
+                                (!item.adminOnly || user?.role === "ADMIN") && (
+                                    <SidebarNavItem
+                                        key={item.href}
+                                        item={item}
+                                        isActive={pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))}
+                                    />
+                                )
                             ))}
                         </SidebarMenu>
                     </SidebarGroupContent>
@@ -149,22 +157,41 @@ function SidebarNav() {
                     <SidebarGroupLabel>Management</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {managementNavItems.map((item) => (
-                                <SidebarNavItem
-                                    key={item.href}
-                                    item={item}
-                                    isActive={pathname === item.href || pathname.startsWith(item.href)}
-                                />
+                            {managementNavItems.map((item: any) => (
+                                (!item.adminOnly || user?.role === "ADMIN") && (
+                                    <SidebarNavItem
+                                        key={item.href}
+                                        item={item}
+                                        isActive={pathname === item.href || pathname.startsWith(item.href)}
+                                    />
+                                )
                             ))}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
 
+                {user?.role === "ADMIN" && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Admin Only</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {adminOnlyNavItems.map((item: any) => (
+                                    <SidebarNavItem
+                                        key={item.href}
+                                        item={item}
+                                        isActive={pathname === item.href || pathname.startsWith(item.href)}
+                                    />
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
+
                 <SidebarGroup>
-                    <SidebarGroupLabel>Analytics & Support</SidebarGroupLabel>
+                    <SidebarGroupLabel>Quality & Feedback</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {analyticsNavItems.map((item) => (
+                            {commonNavItems.map((item: any) => (
                                 <SidebarNavItem
                                     key={item.href}
                                     item={item}
